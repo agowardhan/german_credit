@@ -6,7 +6,7 @@ from xgboost import XGBClassifier
 
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import fbeta_score, make_scorer
-from sklearn.metrics import confusion_matrix, precision_recall_curve, auc, roc_auc_score, roc_curve, recall_score, classification_report
+from sklearn.metrics import precision_score, confusion_matrix, precision_recall_curve, auc, roc_auc_score, roc_curve, recall_score, classification_report
 from sklearn.utils import resample
 
 from sklearn.ensemble import RandomForestClassifier,  VotingClassifier, GradientBoostingClassifier,  AdaBoostClassifier
@@ -156,21 +156,21 @@ def allclassifiers(x_train, y_train, x_val, y_val):
     
     names = ["Nearest Neighbors", "Gaussian Process", 
              "Decision Tree", "Random Forest", "GradientBoosting", "Neural Net", "AdaBoost",
-             "Naive Bayes", "QDA", "XGB", "LogisticRegression"]
+             "Naive Bayes", "QDA", "XGB"]#, "LogisticRegression"]
 
     classifiers = [
         KNeighborsClassifier(3),
         GaussianProcessClassifier(1.0 * RBF(1.0)),
         DecisionTreeClassifier(max_depth=5),
-        RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1),
+        RandomForestClassifier(max_depth=5, n_estimators=200, max_features=1),
         GradientBoostingClassifier(n_estimators=100, learning_rate=1.0,
                                          max_depth=1, random_state=0), 
         MLPClassifier(alpha=1),
         AdaBoostClassifier(),
         GaussianNB(),
         QuadraticDiscriminantAnalysis(), 
-        XGBClassifier(), 
-        LogisticRegression(random_state=5, solver='lbfgs', max_iter=1000,multi_class='multinomial')]
+        XGBClassifier()]
+        #LogisticRegression(random_state=5, solver='lbfgs', max_iter=1000,multi_class='multinomial')]
 
     # iterate over classifiers
     
@@ -203,7 +203,11 @@ def doall(x,y, cv = 10):
     allscores_precision = []
     allscores_cust = []
     
+    x = x.reset_index(drop=True)
+    y = y.reset_index(drop=True)
+    
     for i in range(cv-1): 
+        
         indxs = np.arange(n)[i*interval:(i+1)*interval] # the rows are already shuffled, no need to shuffle again 
         x_val, y_val = x.iloc[indxs].values, y.iloc[indxs].values
         x_0, y_0 = x.drop(indxs).values, y.drop(indxs).values
@@ -220,5 +224,3 @@ def doall(x,y, cv = 10):
     return names, classifiers, allscores_precision, allscores_cust
 
     # cross validation loop 
-    
-    
