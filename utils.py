@@ -24,8 +24,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.utils import shuffle
 
@@ -40,11 +38,13 @@ import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt 
 
-def plot_confusion_matrix(y_true, y_pred, classes,
+def plot_confusion_matrix(y_true, y_pred, classes=['good', 'bad'],
                           normalize=False,
                           title=None,
                           cmap=plt.cm.Blues):
     """
+    y_true, y_pred, classes = ['good', 'bad'],title=None, normalize=False,cmap=blues
+    
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
     """
@@ -94,7 +94,12 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     return ax
 
 
-def downsample(df): 
+def downsample(df, n_samples = 300): 
+    
+    """
+    Input dataframe, returns downsampled dataframe 
+    """
+    
     df_majority = df[df['class']==1]
     df_minority = df[df['class']==0]
  
@@ -102,7 +107,7 @@ def downsample(df):
 
     df_majority_downsampled = resample(df_majority, 
                                  replace=False,    # sample without replacement
-                                 n_samples=300,     # to match minority class
+                                 n_samples=n_samples,     # to match minority class
                                  random_state=10) # reproducible results
  
 # Combine minority class with downsampled majority class
@@ -113,7 +118,13 @@ def downsample(df):
     df_downsampled['class'].value_counts()
     return df_downsampled
     
+    
 def upsample(df): 
+    
+    """
+    Input dataframe, returns downsampled dataframe 
+    """
+    
     df_majority = df[df['class']==1]
     df_minority = df[df['class']==0]
     
@@ -124,6 +135,14 @@ def upsample(df):
 
 
 def cost_loss_func(y_true, y_pred):
+    
+    """
+    y_true, y_pred 
+    
+    Returns custom cost based on cost metric
+        
+    """
+    
     diff = y_true - y_pred
     fn = sum(diff ==1)
     t = sum(diff ==0)
@@ -133,6 +152,12 @@ def cost_loss_func(y_true, y_pred):
 
 
 def plot_df(df): 
+    
+    """
+    Plots all columns in dataframe 
+    
+    """
+    
     for column in df.columns[:-1]:
         if column=='credit_amount' : 
             df[df['class']==0]['credit_amount'].hist(alpha=0.5)
@@ -141,7 +166,6 @@ def plot_df(df):
             df_temp = df.groupby(['class', column])[column].count().unstack('class')
             df_temp.plot(kind='bar')        
   
-
 
 def label_encode(df): 
     
@@ -192,10 +216,14 @@ def allclassifiers(x_train, y_train, x_val, y_val):
         # Plot the decision boundary. For that, we will assign a color to each
         # point in the mesh [x_min, x_max]x[y_min, y_max].
 
-        
-
-
-def doall(x,y, cv = 10): 
+def run_classifiers(x,y, cv = 10): 
+    
+    """
+    dataframes x_training, y_training, cv=10
+    
+    Function to perform cv-fold cross validation with oversampling, implemented correctly 
+    Uses SMOTE to oversample 
+    """
     
     n = len(x)
     # cross validation loop 
